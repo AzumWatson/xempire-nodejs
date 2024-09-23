@@ -5,6 +5,10 @@ const readline = require('readline');
 const { HttpsProxyAgent } = require('https-proxy-agent');
 const { GetApiHash, GetHashByTime } = require('./muskgethash');
 
+const args = process.argv.slice(2);
+const dataFiles = args[0];
+const proxyFiles = args[1];
+
 let apiHash = '';
 
 class MuskEmpireAPI {
@@ -15,14 +19,14 @@ class MuskEmpireAPI {
             "Api-Key": apiKey,
             "Api-Hash": apiHash,
             "Api-Time": apiTime,
-            "Origin": "https://game.muskempire.io",
-            "Referer": "https://game.muskempire.io/",
+            "Origin": "https://game.xempire.io",
+            "Referer": "https://game.xempire.io/",
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
         };
     }
 
     async auth(initData, proxy) {
-        const url = "https://api.muskempire.io/telegram/auth";
+        const url = "https://api.xempire.io/telegram/auth";
         const chatInstanceMatch = initData.match(/chat_instance=([^&]*)/);
         const chatInstance = chatInstanceMatch ? chatInstanceMatch[1] : '';
 
@@ -46,7 +50,7 @@ class MuskEmpireAPI {
     }
 
     async getUserData(apiKey, proxy) {
-        const url = "https://api.muskempire.io/user/data/all";
+        const url = "https://api.xempire.io/user/data/all";
         const payload = { data: {} };
         const [_time, _hash] = GetHashByTime(payload);
         const headers = this.headers(apiKey, _time, _hash);
@@ -59,7 +63,7 @@ class MuskEmpireAPI {
     }
 
     async claimDailyReward(apiKey, rewardId, proxy) {
-        const url = "https://api.muskempire.io/quests/daily/claim";
+        const url = "https://api.xempire.io/quests/daily/claim";
         const payload = { data: rewardId };
         const [_time, _hash] = GetHashByTime(payload);
         const headers = this.headers(apiKey, _time, _hash);
@@ -72,7 +76,7 @@ class MuskEmpireAPI {
     }
 
     async getDB(apiKey, proxy) {
-        const url = "https://api.muskempire.io/dbs";
+        const url = "https://api.xempire.io/dbs";
         const payload = { data: { dbs: ["all"] } };
         const [_time, _hash] = GetHashByTime(payload);
         const headers = this.headers(apiKey, _time, _hash);
@@ -85,7 +89,7 @@ class MuskEmpireAPI {
     }
 
     async improveSkill(apiKey, skillKey, proxy) {
-        const url = "https://api.muskempire.io/skills/improve";
+        const url = "https://api.xempire.io/skills/improve";
         const payload = { data: skillKey };
         const [_time, _hash] = GetHashByTime(payload);
         const headers = this.headers(apiKey, _time, _hash);
@@ -98,7 +102,7 @@ class MuskEmpireAPI {
     }
 
     async guiTap(apiKey, amount, currentEnergy, proxy) {
-        const url = "https://api.muskempire.io/hero/action/tap";
+        const url = "https://api.xempire.io/hero/action/tap";
         const seconds = Math.floor(Math.random() * (900 - 500 + 1)) + 500;
         const payload = {
             data: {
@@ -122,7 +126,7 @@ class MuskEmpireAPI {
     }
 
     async pvpFight(apiKey, level, balance, proxy) {
-        const url = "https://api.muskempire.io/pvp/fight";
+        const url = "https://api.xempire.io/pvp/fight";
         const strategies = ['aggressive', 'flexible', 'protective'];
         const strategy = strategies[Math.floor(Math.random() * strategies.length)];
         // const strategy = "protective";
@@ -164,7 +168,7 @@ class MuskEmpireAPI {
     }
 
     async claimFightReward(apiKey, proxy) {
-        const url = "https://api.muskempire.io/pvp/claim";
+        const url = "https://api.xempire.io/pvp/claim";
         const payload = { data: {} };
         const [_time, _hash] = GetHashByTime(payload);
         const headers = this.headers(apiKey, _time, _hash);
@@ -218,8 +222,8 @@ class MuskEmpireAPI {
     }
 
     async main() {
-        const dataFile = path.join(__dirname, 'data.txt');
-        const proxyFile = path.join(__dirname, 'proxy.txt');
+        const dataFile = path.join(__dirname, dataFiles);
+        const proxyFile = path.join(__dirname, proxyFiles);
         const initDataList = fs.readFileSync(dataFile, 'utf8')
             .replace(/\r/g, '')
             .split('\n')
@@ -235,10 +239,8 @@ class MuskEmpireAPI {
         }
 
         console.log('Alat ini dibagikan gratis di saluran telegram Dân Cày Airdrop @dancayairdrop!');
-        const upgradeSkills = await this.askQuestion('Apakah Anda ingin meningkatkan keterampilan? (y/n): ');
-        const upgradeSkillsYes = upgradeSkills.toLowerCase() === 'y';
-        const pvp = await this.askQuestion('Apakah Anda ingin bermain PvP? (y/n): ');
-        const pvpYes = pvp.toLowerCase() === 'y';
+        const upgradeSkillsYes = true;  // 默认选择升级技能
+        const pvpYes = true;            // 默认选择 PvP
 
         while (true) {
             for (let no = 0; no < initDataList.length; no++) {
